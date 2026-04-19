@@ -15,19 +15,30 @@ config APP_WIFI_PSK
 	default "ujnakolana"
 
 config APP_SERVER_HOST
-	string "HTTP server IP address"
-	default "10.200.8.156"
+	string "HTTPS server hostname (or IPv4)"
+	default "virgin-classifieds-wheel-hey.trycloudflare.com"
 	help
-	  IPv4 address (not hostname) of the machine running server.py.
-	  On Linux NetworkManager hotspot the host is typically 10.42.0.1.
-	  On Windows mobile hotspot: 192.168.137.1.
-	  On Android hotspot: 192.168.43.1.
-	  On iPhone hotspot: 172.20.10.1.
-	  Run `ip addr` on the server machine to confirm.
+	  Hostname (FQDN) or IPv4 address of the Mjolnir ingest server.
+	  When a hostname is used, mbedtls SNI + cert validation uses it.
 
 config APP_SERVER_PORT
-	int "HTTP server port"
-	default 8080
+	int "HTTPS server port"
+	default 443
+
+config APP_SERVER_URL_PATH
+	string "Ingest URL path"
+	default "/api/mjolnir/ingest"
+
+config APP_MJOLNIR_API_KEY
+	string "Factory-burned Mjolnir API key"
+	default "mjlnr_b042769922b73b6e1f6674154a3d340de336b1e229e6075c"
+	help
+	  Sent as X-Mjolnir-Key header. Identifies the specific hammer row
+	  on the server; user pairs by serial, never by key.
+
+config APP_DEVICE_ID
+	string "Device chip id (echoed in request body)"
+	default "nrf7002dk"
 
 config APP_POST_INTERVAL_S
 	int "POST interval (seconds)"

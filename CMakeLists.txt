@@ -23,6 +23,13 @@ target_sources(app PRIVATE
 
 zephyr_include_directories(src)
 
+# Certyfikaty CA (bundle: Google Trust Services Root R4 + ISRG Root X1) —
+# zagniezdzone do firmware jako tablica bajtow, rejestrowane w tls_credential
+# przed pierwszym POST-em HTTPS.
+generate_inc_file_for_target(app
+    src/certs/ca_bundle.pem
+    ${ZEPHYR_BINARY_DIR}/include/generated/ca_bundle.pem.inc)
+
 # Edge Impulse SDK: kod trzeciej strony, nie chcemy żeby jego ostrzeżenia
 # (double-promotion, maybe-uninitialized itd.) wywalały nasz build.
 if(TARGET edge-impulse-sdk)

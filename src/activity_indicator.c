@@ -23,6 +23,7 @@ LOG_MODULE_REGISTER(activity_ind, LOG_LEVEL_INF);
  * 0 front, 1 random, 2 rotation, 3 sides, 4 smash, 5 up */
 static volatile char last_model_label = '-';
 static volatile enum activity last_activity = ACTIVITY_UNKNOWN;
+static volatile uint8_t last_confidence_pct = 0;
 static float features[FEATURES_N];
 
 static const enum activity label_idx_to_activity[] = {
@@ -158,6 +159,11 @@ static void thread_fn(void *a, void *b, void *c)
 							? ACTIVITY_UNKNOWN
 							: label_idx_to_activity[label_idx];
 
+		{
+			float s = score < 0.0f ? 0.0f : (score > 1.0f ? 1.0f : score);
+			last_confidence_pct = (uint8_t)(s * 100.0f + 0.5f);
+		}
+
 		struct motion_sample s;
 		const struct motion_sample *s_ptr =
 			(motion_get_latest(&s) == 0) ? &s : NULL;
@@ -199,4 +205,9 @@ char activity_indicator_get_model_label(void)
 enum activity activity_indicator_get_activity(void)
 {
 	return last_activity;
+}
+
+uint8_t activity_indicator_get_confidence(void)
+{
+	return last_confidence_pct;
 }
