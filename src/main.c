@@ -49,9 +49,14 @@ int main(void)
 
 	(void)battery_init();
 
-	LOG_INF("Posting to http://%s:%d/data every %d s",
+	if (http_post_init_tls() != 0)
+	{
+		LOG_ERR("TLS init failed; POST will fail until recovered");
+	}
+
+	LOG_INF("Posting to https://%s:%d%s every %d s",
 			CONFIG_APP_SERVER_HOST, CONFIG_APP_SERVER_PORT,
-			CONFIG_APP_POST_INTERVAL_S);
+			CONFIG_APP_SERVER_URL_PATH, CONFIG_APP_POST_INTERVAL_S);
 
 	uint32_t counter = 0;
 	while (1)
