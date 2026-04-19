@@ -62,12 +62,16 @@ const char *activity_str(enum activity a)
 {
 	switch (a)
 	{
-	case ACTIVITY_STILL:
-		return "still";
-	case ACTIVITY_WALKING:
-		return "walking";
-	case ACTIVITY_RUNNING:
-		return "running";
+	case ACTIVITY_SMASH:
+		return "smash";
+	case ACTIVITY_FRONT:
+		return "front";
+	case ACTIVITY_ROTATION:
+		return "rotation";
+	case ACTIVITY_SIDES:
+		return "sides";
+	case ACTIVITY_UP:
+		return "up";
 	default:
 		return "unknown";
 	}
@@ -183,7 +187,7 @@ static void sample_thread_fn(void *a, void *b, void *c)
 				.x = x,
 				.y = y,
 				.z = z,
-				.activity = motion_detect_activity(x, y, z),
+				.activity = ACTIVITY_UNKNOWN,
 				.seq = sample_seq,
 				.timestamp_ms = k_uptime_get(),
 			};
@@ -261,8 +265,6 @@ int motion_wait_latest(struct motion_sample *out, int32_t timeout_ms)
 	return motion_get_latest(out);
 }
 
-
-
 int motion_read_accel(int16_t *x, int16_t *y, int16_t *z)
 {
 	struct motion_sample s;
@@ -275,18 +277,4 @@ int motion_read_accel(int16_t *x, int16_t *y, int16_t *z)
 	}
 
 	return motion_read_accel_hw(x, y, z);
-}
-
-enum activity motion_detect_activity(int16_t ax, int16_t ay, int16_t az)
-{
-	int32_t mag_sq = (int32_t)ax * ax + (int32_t)ay * ay + (int32_t)az * az;
-	int32_t mag = (int32_t)isqrt64(mag_sq);
-
-	/* Progi w mg (1g=1000): spoczynek ~1000, chod 1200-1800, bieg >1800. */
-	if (mag < 1200)
-		return ACTIVITY_STILL;
-	else if (mag < 1800)
-		return ACTIVITY_WALKING;
-	else
-		return ACTIVITY_RUNNING;
 }

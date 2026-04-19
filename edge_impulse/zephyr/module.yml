@@ -1,4 +1,4 @@
-name: hacknarock_hammer v1
+name: hacknarock_hammer v2
 build:
   cmake: .
   depends:

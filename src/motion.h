@@ -5,7 +5,7 @@
 
 enum activity
 {
-	ACTIVITY_UNKNOWN = 0,
+	ACTIVITY_UNKNOWN,
 	ACTIVITY_SMASH,
 	ACTIVITY_FRONT,
 	ACTIVITY_ROTATION,
@@ -50,8 +50,5 @@ int motion_wait_latest(struct motion_sample *out, int32_t timeout_ms);
  * Po wywolaniu motion_calibrate dane sa skalibrowane.
  */
 int motion_read_accel(int16_t *x, int16_t *y, int16_t *z);
-
-/* Klasyfikacja ruchu po magnitudzie (mg). */
-enum activity motion_detect_activity(int16_t ax, int16_t ay, int16_t az);
 
 #endif /* MOTION_H_ */

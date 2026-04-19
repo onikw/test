@@ -22,7 +22,17 @@ LOG_MODULE_REGISTER(activity_ind, LOG_LEVEL_INF);
 /* 'a'..'f' zgodnie z kolejnoscia z model_variables.h:
  * 0 front, 1 random, 2 rotation, 3 sides, 4 smash, 5 up */
 static volatile char last_model_label = '-';
+static volatile enum activity last_activity = ACTIVITY_UNKNOWN;
 static float features[FEATURES_N];
+
+static const enum activity label_idx_to_activity[] = {
+	[0] = ACTIVITY_FRONT,	 // EI idx 0: front
+	[1] = ACTIVITY_UNKNOWN,	 // EI idx 1: random -> brak mapowania
+	[2] = ACTIVITY_ROTATION, // EI idx 2: rotation
+	[3] = ACTIVITY_SIDES,	 // EI idx 3: sides
+	[4] = ACTIVITY_SMASH,	 // EI idx 4: smash
+	[5] = ACTIVITY_UP,		 // EI idx 5: up
+};
 
 static void model_color(char label, uint8_t *r, uint8_t *g, uint8_t *b)
 {
@@ -144,6 +154,10 @@ static void thread_fn(void *a, void *b, void *c)
 			continue;
 		}
 
+		last_activity = (anomaly > ANOMALY_THRESHOLD)
+							? ACTIVITY_UNKNOWN
+							: label_idx_to_activity[label_idx];
+
 		struct motion_sample s;
 		const struct motion_sample *s_ptr =
 			(motion_get_latest(&s) == 0) ? &s : NULL;
@@ -180,4 +194,9 @@ void activity_indicator_start(void)
 char activity_indicator_get_model_label(void)
 {
 	return last_model_label;
+}
+
+enum activity activity_indicator_get_activity(void)
+{
+	return last_activity;
 }

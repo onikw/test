@@ -24,12 +24,8 @@ void telemetry_collect(struct telemetry *t, uint32_t counter)
 		t->accel_x = s.x;
 		t->accel_y = s.y;
 		t->accel_z = s.z;
-		t->activity = s.activity;
 	}
-	else
-	{
-		t->activity = motion_detect_activity(t->accel_x, t->accel_y, t->accel_z);
-	}
+	t->activity = activity_indicator_get_activity();
 
 	LOG_INF("telemetry model_label=%c activity=%s",
 			t->model_label, activity_str(t->activity));

@@ -1,6 +1,6 @@
 # Edge Impulse model for Zephyr
 Model package name: hacknarock_hammer
-Model version: 1
+Model version: 2
 Edge Impulse SDK version: v1.92.16
 
 ## Instructions
