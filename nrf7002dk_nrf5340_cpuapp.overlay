@@ -1,0 +1,100 @@
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/adc/nrf-saadc.h>
+#include <dt-bindings/led/led.h>
+
+/ {
+	aliases {
+		accel0    = &adxl345;
+		led-strip = &ws2812;
+	};
+
+	zephyr,user {
+		io-channels = <&adc 0>;
+	};
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_6";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)>;
+		zephyr,input-positive = <NRF_SAADC_AIN0>;
+		zephyr,resolution = <12>;
+	};
+};
+
+&pinctrl {
+	i2c1_default: i2c1_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 11)>,
+					<NRF_PSEL(TWIM_SCL, 1, 12)>;
+		};
+	};
+	i2c1_sleep: i2c1_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 11)>,
+					<NRF_PSEL(TWIM_SCL, 1, 12)>;
+			low-power-enable;
+		};
+	};
+
+	spi3_ws2812_default: spi3_ws2812_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+					<NRF_PSEL(SPIM_MOSI, 1, 13)>;
+		};
+	};
+	spi3_ws2812_sleep: spi3_ws2812_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+					<NRF_PSEL(SPIM_MOSI, 1, 13)>;
+			low-power-enable;
+		};
+	};
+};
+
+&i2c1 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-1 = <&i2c1_sleep>;
+	pinctrl-names = "default", "sleep";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+
+	adxl345: adxl345@53 {
+		compatible = "adi,adxl345";
+		reg = <0x53>;
+	};
+};
+
+/*
+ * SPI3 jest na boardzie spiety z Arduino headers.
+ * Dla ws2812-spi zostawiamy MOSI (D11=P1.13) i SCK (D13=P1.15),
+										 * bez MISO i bez CS.
+										 */
+										&spi3 {
+											status = "okay";
+	pinctrl-0 = <&spi3_ws2812_default>;
+	pinctrl-1 = <&spi3_ws2812_sleep>;
+	pinctrl-names = "default", "sleep";
+	/delete-property/ cs-gpios;
+
+	ws2812: ws2812@0 {
+		compatible = "worldsemi,ws2812-spi";
+		reg = <0>;
+		/* Nordic-recommended WS2812 timings @ 4 MHz (samples/drivers/led/led_strip/nrf52-bindings.h) */
+		spi-max-frequency = <4000000>;
+		chain-length = <8>;
+		color-mapping = <LED_COLOR_ID_GREEN
+		LED_COLOR_ID_RED
+		LED_COLOR_ID_BLUE>;
+		spi-one-frame = <0x70>;
+		spi-zero-frame = <0x40>;
+		reset-delay = <250>;
+	};
+};

@@ -1,0 +1,50 @@
+#
+# App Kconfig
+#
+
+source "Kconfig.zephyr"
+
+menu "App settings"
+
+config APP_WIFI_SSID
+	string "WiFi SSID"
+	default "SLUMSY"
+
+config APP_WIFI_PSK
+	string "WiFi password (WPA2-PSK)"
+	default "ujnakolana"
+
+config APP_SERVER_HOST
+	string "HTTP server IP address"
+	default "10.200.8.156"
+	help
+	  IPv4 address (not hostname) of the machine running server.py.
+	  On Linux NetworkManager hotspot the host is typically 10.42.0.1.
+	  On Windows mobile hotspot: 192.168.137.1.
+	  On Android hotspot: 192.168.43.1.
+	  On iPhone hotspot: 172.20.10.1.
+	  Run `ip addr` on the server machine to confirm.
+
+config APP_SERVER_PORT
+	int "HTTP server port"
+	default 8080
+
+config APP_POST_INTERVAL_S
+	int "POST interval (seconds)"
+	default 5
+
+config APP_BLE_TARGET_MAC
+	string "BLE target peripheral MAC (xx:xx:xx:xx:xx:xx)"
+	default "c7:f1:ec:f8:d0:b6"
+	help
+	  Adres MAC peryferalu BLE z ktorym ma sie laczyc nasza centrala.
+	  Pusty string = nie probuj sie laczyc (BLE wylaczone w runtime).
+	  Format: AA:BB:CC:DD:EE:FF (case-insensitive).
+
+config APP_BLE_TARGET_MAC_TYPE
+	string "BLE target address type (public|random)"
+	default "random"
+	help
+	  Wiekszosc consumer-grade urzadzen BLE uzywa adresow random.
+
+endmenu

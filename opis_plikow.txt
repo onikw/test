@@ -1,0 +1,75 @@
+ANALIZA PLIKOW PROJEKTU (katalog test)
+Data: 2026-04-18
+
+1) CZY SA TOTALNIE NIEUZYWANE PLIKI?
+- W katalogu src: brak totalnie nieuzywanych plikow .c.
+  Wszystkie pliki .c sa kompilowane przez CMakeLists.txt (target_sources).
+- src/led.h: nie jest bezposrednio includowany przez inne pliki,
+  ale modul led.c jest aktywny, bo uruchamia watek statycznie przez K_THREAD_DEFINE.
+- server/server.py: nie jest czescia firmware; to pomocniczy serwer testowy HTTP.
+  Uzyteczny tylko przy lokalnych testach POST /data.
+- .vscode/settings.json: lokalna konfiguracja VS Code, nie wymagana do dzialania firmware.
+- build/: artefakty generowane (mozna usunac i odtworzyc buildem).
+
+2) PLIKI KODU (src/) - OPIS
+- src/main.c
+  Orkiestracja aplikacji: init LED strip, BLE, motion, Wi-Fi, battery,
+  petla telemetry + HTTP POST.
+
+- src/led_strip.c + src/led_strip.h
+  Obsluga paska LED (WS2812 przez driver led_strip).
+  Inicjalizacja i ustawianie koloru wszystkich LED.
+
+- src/ble_led.c + src/ble_led.h
+  BLE central + GATT client.
+  Skanuje urzadzenie po MAC, laczy sie, odnajduje charakterystyke i wysyla payload.
+
+- src/motion.c + src/motion.h
+  Odczyt ADXL345, kalibracja i klasyfikacja aktywnosci (still/walking/running).
+
+- src/activity_indicator.c + src/activity_indicator.h
+  Osobny watek, ktory co 200 ms czyta ruch.
+  Przy zmianie aktywnosci ustawia kolor LED i wysyla status przez BLE.
+
+- src/wifi_sta.c + src/wifi_sta.h
+  Laczenie Wi-Fi STA i oczekiwanie na DHCP (semafory + event callbacki).
+
+- src/battery.c + src/battery.h
+  Odczyt napiecia baterii przez ADC i przeliczenie na mV.
+
+- src/telemetry.c + src/telemetry.h
+  Zbiera dane telemetryczne i buduje JSON.
+
+- src/http_post.c + src/http_post.h
+  Klient HTTP POST (socket + http_client_req), wysylka telemetry pod /data.
+
+- src/led.c + src/led.h
+  Niezalezny watek migajacy LED0.
+  Dziala automatycznie przez K_THREAD_DEFINE (bez wywolywania z main).
+
+3) PLIKI KONFIGURACYJNE PROJEKTU
+- CMakeLists.txt
+  Definicja targetu app i lista kompilowanych plikow src/*.c.
+
+- Kconfig
+  Ustawienia aplikacyjne: SSID, haslo, host/port serwera, BLE target MAC itd.
+
+- prj.conf
+  Konfiguracja Zephyr/NCS (Wi-Fi, BLE, HTTP, ADC, logi, stosy, bufory).
+
+- sysbuild.conf
+  Ustawienia sysbuild (dla wieloobrazkowego buildu NCS).
+
+- nrf7002dk_nrf5340_cpuapp.overlay
+  Overlay DeviceTree (sprzetowe mapowanie peryferiow).
+
+4) PLIKI POMOCNICZE
+- server/server.py
+  Prosty lokalny serwer HTTP do testow endpointu /data.
+
+- .vscode/settings.json
+  Lokalne ustawienia VS Code (nRF Connect extension).
+
+5) PLIKI, KTORE MOZNA REGULARNIE SPRZATAC
+- build/ (calosc)
+  Katalog generowany przez build system; niepotrzebny do trzymania zmian kodu.

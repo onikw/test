@@ -1,0 +1,5 @@
+name: hacknarock_hammer v1
+build:
+  cmake: .
+  depends:
+    - edge-impulse-sdk-zephyr
